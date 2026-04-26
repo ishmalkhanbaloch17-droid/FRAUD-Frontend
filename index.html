@@ -396,7 +396,23 @@
         <img id="chartFeat" alt="Feature Importance"/>
       </div>
     </div>
-  </div>
+  <p class="section-label">Transaction Predictions — Best Model</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Actual</th>
+            <th>Predicted</th>
+            <th>Fraud Probability</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody id="predBody"></tbody>
+      </table>
+    </div>
+
+    </div>
 
 </main>
 
@@ -521,6 +537,17 @@
       document.getElementById('chartCm').src      = data.charts.confusion_matrix;
       document.getElementById('chartMetrics').src = data.charts.metrics_bar;
       document.getElementById('chartFeat').src    = data.charts.feature_importance;
+
+      // Predictions table
+      document.getElementById('predBody').innerHTML =
+        data.predictions.map(p => `
+          <tr>
+            <td>${p.transaction}</td>
+            <td class="${p.actual === 'FRAUD' ? 'score-low' : 'score-high'}">${p.actual}</td>
+            <td class="${p.predicted === 'FRAUD' ? 'score-low' : 'score-high'}">${p.predicted}</td>
+            <td class="${p.fraud_prob > 70 ? 'score-low' : p.fraud_prob > 40 ? 'score-mid' : 'score-high'}">${p.fraud_prob}%</td>
+            <td>${p.correct ? '✅ Correct' : '❌ Wrong'}</td>
+          </tr>`).join('');
 
       resultsDiv.style.display = 'block';
       resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
