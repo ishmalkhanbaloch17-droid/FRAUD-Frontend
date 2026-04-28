@@ -8,469 +8,144 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --bg:       #080d14;
-      --surface:  #0e1825;
-      --card:     #121f30;
-      --border:   #1e3048;
-      --accent:   #00c2ff;
-      --green:    #00e5a0;
-      --red:      #ff4d6d;
-      --amber:    #ffb830;
-      --text:     #e2eaf4;
-      --muted:    #5a7a99;
-      --font-display: 'Syne', sans-serif;
-      --font-mono:    'DM Mono', monospace;
+      --bg:#080d14;--surface:#0e1825;--card:#121f30;--border:#1e3048;
+      --accent:#00c2ff;--green:#00e5a0;--red:#ff4d6d;--amber:#ffb830;
+      --text:#e2eaf4;--muted:#5a7a99;
+      --font-display:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
     }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-display);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;z-index:0;
+      background-image:linear-gradient(rgba(0,194,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,194,255,0.03) 1px,transparent 1px);
+      background-size:40px 40px;pointer-events:none}
+    header{position:relative;z-index:1;padding:3.5rem 2rem 2.5rem;text-align:center;border-bottom:1px solid var(--border)}
+    .logo-tag{display:inline-block;font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.18em;color:var(--accent);
+      background:rgba(0,194,255,0.07);border:1px solid rgba(0,194,255,0.2);padding:0.3rem 0.9rem;border-radius:2px;margin-bottom:1.2rem;text-transform:uppercase}
+    header h1{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;letter-spacing:-0.03em;line-height:1.05;
+      background:linear-gradient(135deg,#ffffff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    header p{margin-top:0.9rem;color:var(--muted);font-size:1rem;font-family:var(--font-mono);font-weight:300}
+    main{position:relative;z-index:1;max-width:1000px;margin:3rem auto;padding:0 1.5rem 4rem}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Tabs */
+    .tabs{display:flex;gap:0.5rem;margin-bottom:2rem;border-bottom:1px solid var(--border)}
+    .tab-btn{padding:0.75rem 1.5rem;font-family:var(--font-display);font-size:0.95rem;font-weight:700;
+      color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;
+      cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:-1px}
+    .tab-btn:hover{color:var(--text)}
+    .tab-btn.active{color:var(--accent);border-bottom:2px solid var(--accent)}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-display);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    /* Upload */
+    .upload-zone{border:1.5px dashed var(--border);border-radius:12px;padding:3rem 2rem;text-align:center;
+      background:var(--surface);transition:border-color 0.25s,background 0.25s;cursor:pointer;position:relative}
+    .upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:rgba(0,194,255,0.04)}
+    .upload-icon{font-size:2.8rem;margin-bottom:1rem;display:block}
+    .upload-zone h2{font-size:1.25rem;font-weight:700;margin-bottom:0.4rem}
+    .upload-zone p{color:var(--muted);font-family:var(--font-mono);font-size:0.82rem;line-height:1.6}
+    .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .file-pill{display:none;align-items:center;gap:0.6rem;background:rgba(0,229,160,0.08);
+      border:1px solid rgba(0,229,160,0.25);color:var(--green);padding:0.5rem 1.2rem;
+      border-radius:999px;font-family:var(--font-mono);font-size:0.82rem;margin:1.2rem auto 0;width:fit-content}
+    .file-pill.visible{display:inline-flex}
 
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background-image:
-        linear-gradient(rgba(0,194,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,194,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
+    /* Buttons */
+    .run-btn{display:block;width:100%;margin-top:1.5rem;padding:1rem;font-family:var(--font-display);
+      font-size:1rem;font-weight:700;letter-spacing:0.05em;color:var(--bg);background:var(--accent);
+      border:none;border-radius:8px;cursor:pointer;transition:opacity 0.2s,transform 0.1s;text-transform:uppercase}
+    .run-btn:hover:not(:disabled){opacity:0.88;transform:translateY(-1px)}
+    .run-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none}
 
-    header {
-      position: relative; z-index: 1;
-      padding: 3.5rem 2rem 2.5rem;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-    }
+    /* Loader */
+    .loader{display:none;text-align:center;padding:3rem 0}
+    .pulse-ring{width:56px;height:56px;border-radius:50%;border:2px solid transparent;
+      border-top-color:var(--accent);border-right-color:rgba(0,194,255,0.3);
+      animation:spin 0.9s linear infinite;margin:0 auto 1.2rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader p{color:var(--muted);font-family:var(--font-mono);font-size:0.85rem}
+    .step-log{margin-top:0.6rem;font-family:var(--font-mono);font-size:0.75rem;color:var(--accent);opacity:0.7;min-height:1.2em}
 
-    .logo-tag {
-      display: inline-block;
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
-      color: var(--accent);
-      background: rgba(0,194,255,0.07);
-      border: 1px solid rgba(0,194,255,0.2);
-      padding: 0.3rem 0.9rem;
-      border-radius: 2px;
-      margin-bottom: 1.2rem;
-      text-transform: uppercase;
-    }
+    /* Error */
+    .error-box{display:none;background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.3);
+      color:#ff8fa3;padding:1rem 1.5rem;border-radius:8px;margin-top:1.5rem;font-family:var(--font-mono);font-size:0.88rem}
 
-    header h1 {
-      font-size: clamp(2.2rem, 5vw, 3.8rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.05;
-      background: linear-gradient(135deg, #ffffff 30%, var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+    /* Results */
+    .results{display:none;margin-top:3rem}
+    .section-label{font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.15em;
+      color:var(--muted);text-transform:uppercase;margin-bottom:1rem}
+    .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:1rem;margin-bottom:2.5rem}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+      padding:1.2rem 1rem;text-align:center;position:relative;overflow:hidden}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+    .stat-card .val{font-size:1.7rem;font-weight:800;color:var(--accent);line-height:1.1}
+    .stat-card .lbl{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.08em}
+    .best-banner{background:linear-gradient(135deg,rgba(0,229,160,0.07),rgba(0,194,255,0.07));
+      border:1px solid rgba(0,229,160,0.2);border-radius:10px;padding:1rem 1.5rem;margin-bottom:2.5rem;
+      font-size:1rem;font-weight:600;color:var(--green);display:flex;align-items:center;gap:0.7rem}
+    .table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:2.5rem}
+    table{width:100%;border-collapse:collapse}
+    thead tr{background:var(--card)}
+    th{font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.1em;color:var(--muted);
+      text-transform:uppercase;padding:0.9rem 1.2rem;text-align:left;border-bottom:1px solid var(--border)}
+    td{padding:0.85rem 1.2rem;border-bottom:1px solid rgba(30,48,72,0.6);font-family:var(--font-mono);font-size:0.88rem}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr:hover td{background:rgba(0,194,255,0.03)}
+    td:first-child{font-family:var(--font-display);font-weight:600;font-size:0.9rem}
+    .score-high{color:var(--green);font-weight:600}
+    .score-mid{color:var(--amber)}
+    .score-low{color:var(--red)}
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:0.5rem}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem}
+    .chart-card h3{font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.12em;
+      color:var(--muted);text-transform:uppercase;margin-bottom:0.85rem}
+    .chart-card img{width:100%;border-radius:6px;display:block}
+    .chart-full{grid-column:1/-1}
 
-    header p {
-      margin-top: 0.9rem;
-      color: var(--muted);
-      font-size: 1rem;
-      font-family: var(--font-mono);
-      font-weight: 300;
-    }
+    /* Single Transaction */
+    .form-intro{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      padding:1.5rem 2rem;margin-bottom:2rem;font-family:var(--font-mono);font-size:0.85rem;
+      color:var(--muted);line-height:1.7}
+    .form-intro strong{color:var(--accent)}
 
-    main {
-      position: relative; z-index: 1;
-      max-width: 1000px;
-      margin: 3rem auto;
-      padding: 0 1.5rem 4rem;
-    }
+    .input-method-tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem}
+    .method-btn{padding:0.6rem 1.2rem;font-family:var(--font-mono);font-size:0.8rem;
+      color:var(--muted);background:var(--surface);border:1px solid var(--border);
+      border-radius:6px;cursor:pointer;transition:all 0.2s}
+    .method-btn.active{color:var(--accent);border-color:var(--accent);background:rgba(0,194,255,0.07)}
 
-    /* ── Tabs ── */
-    .tabs {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0;
-    }
+    .input-section{display:none}
+    .input-section.active{display:block}
 
-    .tab-btn {
-      padding: 0.75rem 1.5rem;
-      font-family: var(--font-display);
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--muted);
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: -1px;
-    }
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+    .form-group{display:flex;flex-direction:column;gap:0.4rem}
+    .form-group label{font-family:var(--font-mono);font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+    .form-group input{background:var(--surface);border:1px solid var(--border);border-radius:6px;
+      padding:0.6rem 0.9rem;color:var(--text);font-family:var(--font-mono);font-size:0.85rem;
+      transition:border-color 0.2s;width:100%}
+    .form-group input:focus{outline:none;border-color:var(--accent)}
 
-    .tab-btn:hover { color: var(--text); }
+    /* Single result */
+    .single-result{display:none;margin-top:2rem}
+    .result-card{border-radius:12px;padding:2rem;text-align:center;margin-bottom:1.5rem}
+    .result-card.fraud{background:rgba(255,77,109,0.1);border:2px solid var(--red)}
+    .result-card.legit{background:rgba(0,229,160,0.1);border:2px solid var(--green)}
+    .result-icon{font-size:3rem;margin-bottom:0.5rem}
+    .result-title{font-size:2rem;font-weight:800;margin-bottom:0.5rem}
+    .result-card.fraud .result-title{color:var(--red)}
+    .result-card.legit .result-title{color:var(--green)}
+    .result-prob{font-family:var(--font-mono);font-size:1rem;color:var(--muted)}
+    .prob-bar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem}
+    .prob-bar-label{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem}
+    .prob-bar{height:12px;background:var(--border);border-radius:999px;overflow:hidden}
+    .prob-bar-fill{height:100%;border-radius:999px;transition:width 0.8s ease;background:linear-gradient(90deg,var(--green),var(--red))}
 
-    .tab-btn.active {
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent);
-    }
+    .warning-box{background:rgba(255,184,48,0.08);border:1px solid rgba(255,184,48,0.3);
+      color:var(--amber);padding:1rem 1.5rem;border-radius:8px;margin-bottom:1.5rem;
+      font-family:var(--font-mono);font-size:0.82rem;line-height:1.6}
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    /* ── Upload zone ── */
-    .upload-zone {
-      border: 1.5px dashed var(--border);
-      border-radius: 12px;
-      padding: 3rem 2rem;
-      text-align: center;
-      background: var(--surface);
-      transition: border-color 0.25s, background 0.25s;
-      cursor: pointer;
-      position: relative;
-    }
-    .upload-zone:hover, .upload-zone.drag-over {
-      border-color: var(--accent);
-      background: rgba(0,194,255,0.04);
-    }
-    .upload-icon { font-size: 2.8rem; margin-bottom: 1rem; display: block; }
-    .upload-zone h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.4rem; }
-    .upload-zone p {
-      color: var(--muted);
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      line-height: 1.6;
-    }
-    .upload-zone input[type=file] {
-      position: absolute; inset: 0;
-      opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
-    .file-pill {
-      display: none;
-      align-items: center;
-      gap: 0.6rem;
-      background: rgba(0,229,160,0.08);
-      border: 1px solid rgba(0,229,160,0.25);
-      color: var(--green);
-      padding: 0.5rem 1.2rem;
-      border-radius: 999px;
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      margin: 1.2rem auto 0;
-      width: fit-content;
-    }
-    .file-pill.visible { display: inline-flex; }
-
-    /* ── Buttons ── */
-    .run-btn {
-      display: block;
-      width: 100%;
-      margin-top: 1.5rem;
-      padding: 1rem;
-      font-family: var(--font-display);
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      color: var(--bg);
-      background: var(--accent);
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      text-transform: uppercase;
-    }
-    .run-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
-    .run-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
-
-    /* ── Loader ── */
-    .loader { display: none; text-align: center; padding: 3rem 0; }
-    .pulse-ring {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      border-top-color: var(--accent);
-      border-right-color: rgba(0,194,255,0.3);
-      animation: spin 0.9s linear infinite;
-      margin: 0 auto 1.2rem;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loader p { color: var(--muted); font-family: var(--font-mono); font-size: 0.85rem; }
-    .step-log {
-      margin-top: 0.6rem;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--accent);
-      opacity: 0.7;
-      min-height: 1.2em;
-    }
-
-    /* ── Error ── */
-    .error-box {
-      display: none;
-      background: rgba(255,77,109,0.08);
-      border: 1px solid rgba(255,77,109,0.3);
-      color: #ff8fa3;
-      padding: 1rem 1.5rem;
-      border-radius: 8px;
-      margin-top: 1.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.88rem;
-    }
-
-    /* ── Results ── */
-    .results { display: none; margin-top: 3rem; }
-    .section-label {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-    }
-
-    .stat-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-    }
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.2rem 1rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: var(--accent);
-    }
-    .stat-card .val {
-      font-size: 1.7rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1.1;
-    }
-    .stat-card .lbl {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin-top: 0.35rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .best-banner {
-      background: linear-gradient(135deg, rgba(0,229,160,0.07), rgba(0,194,255,0.07));
-      border: 1px solid rgba(0,229,160,0.2);
-      border-radius: 10px;
-      padding: 1rem 1.5rem;
-      margin-bottom: 2.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--green);
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      margin-bottom: 2.5rem;
-    }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr { background: var(--card); }
-    th {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      text-transform: uppercase;
-      padding: 0.9rem 1.2rem;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    td {
-      padding: 0.85rem 1.2rem;
-      border-bottom: 1px solid rgba(30,48,72,0.6);
-      font-family: var(--font-mono);
-      font-size: 0.88rem;
-    }
-    tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: rgba(0,194,255,0.03); }
-    td:first-child { font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; }
-    .score-high { color: var(--green); font-weight: 600; }
-    .score-mid  { color: var(--amber); }
-    .score-low  { color: var(--red); }
-
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.2rem;
-      margin-top: 0.5rem;
-    }
-    .chart-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.2rem;
-    }
-    .chart-card h3 {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 0.85rem;
-    }
-    .chart-card img { width: 100%; border-radius: 6px; display: block; }
-    .chart-full { grid-column: 1 / -1; }
-
-    /* ── Single Transaction Form ── */
-    .form-intro {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem 2rem;
-      margin-bottom: 2rem;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    .form-intro strong { color: var(--accent); }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .form-group label {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .form-group input {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.6rem 0.9rem;
-      color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      transition: border-color 0.2s;
-      width: 100%;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    /* ── Single result card ── */
-    .single-result {
-      display: none;
-      margin-top: 2rem;
-    }
-
-    .result-card {
-      border-radius: 12px;
-      padding: 2rem;
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .result-card.fraud {
-      background: rgba(255,77,109,0.1);
-      border: 2px solid var(--red);
-    }
-
-    .result-card.legit {
-      background: rgba(0,229,160,0.1);
-      border: 2px solid var(--green);
-    }
-
-    .result-card .result-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-    .result-card .result-title {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-    }
-    .result-card.fraud .result-title { color: var(--red); }
-    .result-card.legit .result-title { color: var(--green); }
-
-    .result-card .result-prob {
-      font-family: var(--font-mono);
-      font-size: 1rem;
-      color: var(--muted);
-    }
-
-    .prob-bar-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .prob-bar-label {
-      display: flex;
-      justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-bottom: 0.6rem;
-    }
-
-    .prob-bar {
-      height: 12px;
-      background: var(--border);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .prob-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      transition: width 0.8s ease;
-      background: linear-gradient(90deg, var(--green), var(--red));
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in { animation: fadeUp 0.45s ease both; }
-
-    @media (max-width: 640px) {
-      .charts-grid { grid-template-columns: 1fr; }
-      header { padding: 2.5rem 1.2rem 2rem; }
-      .form-grid { grid-template-columns: 1fr 1fr; }
-    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    .fade-in{animation:fadeUp 0.45s ease both}
+    @media(max-width:640px){.charts-grid{grid-template-columns:1fr};header{padding:2.5rem 1.2rem 2rem};.form-grid{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
@@ -485,31 +160,20 @@
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('batch')">
-      📂 Batch CSV Analysis
-    </button>
-    <button class="tab-btn" onclick="switchTab('single')">
-      🔍 Single Transaction
-    </button>
+    <button class="tab-btn active" onclick="switchTab('batch')">📂 Batch CSV Analysis</button>
+    <button class="tab-btn" onclick="switchTab('single')">🔍 Single Transaction</button>
   </div>
 
-  <!-- ═══════════════════════════════════════ -->
-  <!-- TAB 1: BATCH CSV                        -->
-  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 1: BATCH -->
   <div class="tab-content active" id="tab-batch">
 
     <div class="upload-zone" id="dropZone">
       <input type="file" id="csvFile" accept=".csv"/>
       <span class="upload-icon">⬆</span>
       <h2>Drop your CSV file here</h2>
-      <p>
-        Accepts <strong>raw transaction data</strong> or <strong>PCA-transformed data</strong> (V1…Vn columns)<br/>
-        Must include a <code>Class</code> column — 0 = Legitimate, 1 = Fraud
-      </p>
-      <div class="file-pill" id="filePill">
-        <span>✓</span>
-        <span id="fileName">file.csv</span>
-      </div>
+      <p>Accepts <strong>raw transaction data</strong> or <strong>PCA-transformed data</strong> (V1…Vn columns)<br/>
+      Must include a <code>Class</code> column — 0 = Legitimate, 1 = Fraud</p>
+      <div class="file-pill" id="filePill"><span>✓</span><span id="fileName">file.csv</span></div>
     </div>
 
     <button class="run-btn" id="analyzeBtn" disabled>Run Fraud Analysis →</button>
@@ -529,83 +193,75 @@
 
       <p class="section-label">Model Comparison</p>
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Model</th><th>Precision</th><th>Recall</th>
-              <th>F1-Score</th><th>ROC-AUC</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+        <table><thead><tr><th>Model</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>ROC-AUC</th></tr></thead>
+        <tbody id="tableBody"></tbody></table>
       </div>
 
       <p class="section-label">Transaction Predictions — Best Model (First 20)</p>
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th><th>Actual</th><th>Predicted</th>
-              <th>Fraud Probability</th><th>Result</th>
-            </tr>
-          </thead>
-          <tbody id="predBody"></tbody>
-        </table>
+        <table><thead><tr><th>#</th><th>Actual</th><th>Predicted</th><th>Fraud Probability</th><th>Result</th></tr></thead>
+        <tbody id="predBody"></tbody></table>
       </div>
 
       <p class="section-label">Visualizations</p>
       <div class="charts-grid">
-        <div class="chart-card">
-          <h3>Class Distribution</h3>
-          <img id="chartClass" alt="Class Distribution"/>
-        </div>
-        <div class="chart-card">
-          <h3>ROC Curves</h3>
-          <img id="chartRoc" alt="ROC Curves"/>
-        </div>
-        <div class="chart-card">
-          <h3>Confusion Matrix — Best Model</h3>
-          <img id="chartCm" alt="Confusion Matrix"/>
-        </div>
-        <div class="chart-card">
-          <h3>Precision / Recall / F1</h3>
-          <img id="chartMetrics" alt="Metrics"/>
-        </div>
-        <div class="chart-card chart-full">
-          <h3>Feature Importance — Random Forest</h3>
-          <img id="chartFeat" alt="Feature Importance"/>
-        </div>
+        <div class="chart-card"><h3>Class Distribution</h3><img id="chartClass"/></div>
+        <div class="chart-card"><h3>ROC Curves</h3><img id="chartRoc"/></div>
+        <div class="chart-card"><h3>Confusion Matrix</h3><img id="chartCm"/></div>
+        <div class="chart-card"><h3>Precision / Recall / F1</h3><img id="chartMetrics"/></div>
+        <div class="chart-card chart-full"><h3>Feature Importance</h3><img id="chartFeat"/></div>
       </div>
     </div>
-
   </div>
 
-  <!-- ═══════════════════════════════════════ -->
-  <!-- TAB 2: SINGLE TRANSACTION               -->
-  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 2: SINGLE TRANSACTION -->
   <div class="tab-content" id="tab-single">
 
     <div class="form-intro">
-      Enter the details of a <strong>single transaction</strong> below and click
-      <strong>Check Transaction</strong> to get an instant fraud prediction.
-      All V1–V28 fields are PCA-transformed features from the original dataset.
+      Enter a <strong>single transaction</strong> — either fill the form manually or upload a
+      <strong>single-row CSV file</strong>. The app will automatically apply
+      <strong>PCA transformation</strong> and predict whether it is
+      <strong style="color:var(--red)">Fraud</strong> or
+      <strong style="color:var(--green)">Legitimate</strong>.
+      No Class column needed — the model predicts it!
     </div>
 
-    <div class="form-grid" id="transactionForm">
-      <div class="form-group">
-        <label>Time</label>
-        <input type="number" id="f_time" placeholder="e.g. 406" step="any"/>
-      </div>
-      <div class="form-group">
-        <label>Amount</label>
-        <input type="number" id="f_amount" placeholder="e.g. 149.62" step="any"/>
-      </div>
+    <div class="warning-box">
+      ⚠️ <strong>Important:</strong> Run <strong>Batch CSV Analysis</strong> first to train the model.
+      The single transaction checker uses that trained model to make predictions.
     </div>
 
-    <div class="form-grid" id="vFieldsGrid"></div>
+    <!-- Input method toggle -->
+    <div class="input-method-tabs">
+      <button class="method-btn active" onclick="switchMethod('form')">✏️ Fill Form Manually</button>
+      <button class="method-btn" onclick="switchMethod('csv')">📄 Upload Single Row CSV</button>
+    </div>
 
-    <button class="run-btn" id="singleBtn">🔍 Check Transaction →</button>
+    <!-- FORM METHOD -->
+    <div class="input-section active" id="method-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Time</label><input type="number" id="f_time" placeholder="e.g. 406" step="any"/></div>
+        <div class="form-group"><label>Amount ($)</label><input type="number" id="f_amount" placeholder="e.g. 149.62" step="any"/></div>
+      </div>
+      <p class="section-label" style="margin-bottom:0.8rem">PCA Features (V1 – V28)</p>
+      <div class="form-grid" id="vFieldsGrid"></div>
+      <button class="run-btn" id="singleFormBtn">🔍 Check This Transaction →</button>
+    </div>
 
+    <!-- CSV METHOD -->
+    <div class="input-section" id="method-csv">
+      <div class="upload-zone" id="singleDropZone" style="margin-bottom:0">
+        <input type="file" id="singleCsvFile" accept=".csv"/>
+        <span class="upload-icon">📄</span>
+        <h2>Upload Single Transaction CSV</h2>
+        <p>Upload a CSV with <strong>one row</strong> of raw or PCA transaction data<br/>
+        <strong>No Class column needed</strong> — the model will predict it automatically</p>
+        <div class="file-pill" id="singleFilePill"><span>✓</span><span id="singleFileName">file.csv</span></div>
+      </div>
+      <button class="run-btn" id="singleCsvBtn" disabled>🔍 Check This Transaction →</button>
+    </div>
+
+    <!-- Loader -->
     <div class="loader" id="singleLoader">
       <div class="pulse-ring"></div>
       <p>Analyzing transaction…</p>
@@ -613,54 +269,58 @@
 
     <div class="error-box" id="singleError"></div>
 
+    <!-- Result -->
     <div class="single-result" id="singleResult">
-
       <div class="result-card" id="resultCard">
         <div class="result-icon" id="resultIcon"></div>
         <div class="result-title" id="resultTitle"></div>
         <div class="result-prob" id="resultProb"></div>
       </div>
-
       <div class="prob-bar-wrap">
         <div class="prob-bar-label">
-          <span>Legitimate</span>
+          <span>✅ Legitimate</span>
           <span id="probPct"></span>
-          <span>Fraud</span>
+          <span>🚨 Fraud</span>
         </div>
-        <div class="prob-bar">
-          <div class="prob-bar-fill" id="probFill" style="width:0%"></div>
-        </div>
+        <div class="prob-bar"><div class="prob-bar-fill" id="probFill" style="width:0%"></div></div>
       </div>
-
     </div>
 
   </div>
-
 </main>
 
 <script>
   const BACKEND_URL = "https://fraud-backend-d4du.onrender.com";
 
-  // ── Tab switching ──────────────────────────────────────────
+  // ── Tab switching ──
   function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach((b, i) => {
-      b.classList.toggle('active', (i === 0 && tab === 'batch') || (i === 1 && tab === 'single'));
+    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+      b.classList.toggle('active',(i===0&&tab==='batch')||(i===1&&tab==='single'));
     });
-    document.getElementById('tab-batch').classList.toggle('active', tab === 'batch');
-    document.getElementById('tab-single').classList.toggle('active', tab === 'single');
+    document.getElementById('tab-batch').classList.toggle('active', tab==='batch');
+    document.getElementById('tab-single').classList.toggle('active', tab==='single');
   }
 
-  // ── Build V1–V28 fields ───────────────────────────────────
+  // ── Input method switching ──
+  function switchMethod(method) {
+    document.querySelectorAll('.method-btn').forEach((b,i) => {
+      b.classList.toggle('active',(i===0&&method==='form')||(i===1&&method==='csv'));
+    });
+    document.getElementById('method-form').classList.toggle('active', method==='form');
+    document.getElementById('method-csv').classList.toggle('active', method==='csv');
+  }
+
+  // ── Build V1–V28 fields ──
   const vGrid = document.getElementById('vFieldsGrid');
   for (let i = 1; i <= 28; i++) {
     vGrid.innerHTML += `
       <div class="form-group">
         <label>V${i}</label>
-        <input type="number" id="f_v${i}" placeholder="e.g. 0.00" step="any"/>
+        <input type="number" id="f_v${i}" placeholder="0.00" step="any"/>
       </div>`;
   }
 
-  // ── BATCH TAB ─────────────────────────────────────────────
+  // ── BATCH TAB ──
   const fileInput  = document.getElementById('csvFile');
   const dropZone   = document.getElementById('dropZone');
   const analyzeBtn = document.getElementById('analyzeBtn');
@@ -671,157 +331,159 @@
   const resultsDiv = document.getElementById('results');
   const errorBox   = document.getElementById('errorBox');
 
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (f && f.name.endsWith('.csv')) setFile(f);
+  dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('drag-over')});
+  dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e=>{
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    const f=e.dataTransfer.files[0];
+    if(f&&f.name.endsWith('.csv')) setFile(f);
   });
-  fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+  fileInput.addEventListener('change',()=>{if(fileInput.files[0]) setFile(fileInput.files[0])});
 
   function setFile(f) {
-    fileName.textContent = f.name;
+    fileName.textContent=f.name;
     filePill.classList.add('visible');
-    analyzeBtn.disabled = false;
-    fileInput._file = f;
+    analyzeBtn.disabled=false;
+    fileInput._file=f;
   }
 
-  const steps = [
-    'Uploading file…','Detecting file type…','Applying PCA…',
-    'Applying SMOTE…','Training Logistic Regression…',
-    'Training Decision Tree…','Training Random Forest…',
-    'Generating visualizations…','Almost done…'
-  ];
+  const steps=['Uploading file…','Detecting file type…','Applying PCA…','Applying SMOTE…',
+    'Training Logistic Regression…','Training Decision Tree…','Training Random Forest…',
+    'Generating visualizations…','Almost done…'];
   let stepTimer;
-  function startSteps() {
-    let i = 0; stepLog.textContent = steps[0];
-    stepTimer = setInterval(() => { i = Math.min(i+1, steps.length-1); stepLog.textContent = steps[i]; }, 9000);
+  function startSteps(){
+    let i=0; stepLog.textContent=steps[0];
+    stepTimer=setInterval(()=>{i=Math.min(i+1,steps.length-1);stepLog.textContent=steps[i]},9000);
   }
-  function stopSteps() { clearInterval(stepTimer); }
+  function stopSteps(){clearInterval(stepTimer)}
 
-  function scoreClass(v) {
-    if (v >= 0.9) return 'score-high';
-    if (v >= 0.7) return 'score-mid';
+  function scoreClass(v){
+    if(v>=0.9) return 'score-high';
+    if(v>=0.7) return 'score-mid';
     return 'score-low';
   }
 
-  analyzeBtn.addEventListener('click', async () => {
-    const file = fileInput._file || fileInput.files[0];
-    if (!file) return;
-
-    loader.style.display     = 'block';
-    resultsDiv.style.display = 'none';
-    errorBox.style.display   = 'none';
-    analyzeBtn.disabled      = true;
+  analyzeBtn.addEventListener('click', async()=>{
+    const file=fileInput._file||fileInput.files[0];
+    if(!file) return;
+    loader.style.display='block';
+    resultsDiv.style.display='none';
+    errorBox.style.display='none';
+    analyzeBtn.disabled=true;
     startSteps();
-
-    const formData = new FormData();
-    formData.append('file', file);
-
+    const formData=new FormData();
+    formData.append('file',file);
     try {
-      const res  = await fetch(`${BACKEND_URL}/analyze`, { method: 'POST', body: formData });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-
-      const s = data.summary;
-      document.getElementById('statRow').innerHTML = `
+      const res=await fetch(`${BACKEND_URL}/analyze`,{method:'POST',body:formData});
+      const data=await res.json();
+      if(data.error) throw new Error(data.error);
+      const s=data.summary;
+      document.getElementById('statRow').innerHTML=`
         <div class="stat-card fade-in"><div class="val">${s.shape[0].toLocaleString()}</div><div class="lbl">Total Rows</div></div>
         <div class="stat-card fade-in" style="animation-delay:.05s"><div class="val">${s.shape[1]}</div><div class="lbl">Features</div></div>
         <div class="stat-card fade-in" style="animation-delay:.1s"><div class="val" style="color:var(--red)">${s.fraud_count.toLocaleString()}</div><div class="lbl">Fraud Cases</div></div>
         <div class="stat-card fade-in" style="animation-delay:.15s"><div class="val" style="color:var(--red)">${s.fraud_percent}%</div><div class="lbl">Fraud Rate</div></div>
-        <div class="stat-card fade-in" style="animation-delay:.2s"><div class="val" style="font-size:0.9rem;color:var(--green)">${s.file_type}</div><div class="lbl">File Type</div></div>
-      `;
-
-      document.getElementById('bestBanner').innerHTML =
-        `<span>✦</span> Best model by F1-Score: <strong>${s.best_model}</strong>`;
-
-      document.getElementById('tableBody').innerHTML = data.results.map(r => `
-        <tr>
-          <td>${r.Model}</td>
-          <td class="${scoreClass(r.Precision)}">${r.Precision}</td>
-          <td class="${scoreClass(r.Recall)}">${r.Recall}</td>
-          <td class="${scoreClass(r['F1-Score'])}">${r['F1-Score']}</td>
-          <td class="${scoreClass(r['ROC-AUC'])}">${r['ROC-AUC']}</td>
-        </tr>`).join('');
-
-      document.getElementById('predBody').innerHTML = data.predictions.map(p => `
-        <tr>
-          <td>${p.transaction}</td>
-          <td class="${p.actual === 'FRAUD' ? 'score-low' : 'score-high'}">${p.actual}</td>
-          <td class="${p.predicted === 'FRAUD' ? 'score-low' : 'score-high'}">${p.predicted}</td>
-          <td class="${p.fraud_prob > 70 ? 'score-low' : p.fraud_prob > 40 ? 'score-mid' : 'score-high'}">${p.fraud_prob}%</td>
-          <td>${p.correct ? '✅ Correct' : '❌ Wrong'}</td>
-        </tr>`).join('');
-
-      document.getElementById('chartClass').src  = data.charts.class_dist;
-      document.getElementById('chartRoc').src     = data.charts.roc;
-      document.getElementById('chartCm').src      = data.charts.confusion_matrix;
-      document.getElementById('chartMetrics').src = data.charts.metrics_bar;
-      document.getElementById('chartFeat').src    = data.charts.feature_importance;
-
-      resultsDiv.style.display = 'block';
-      resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    } catch (err) {
-      errorBox.textContent   = `❌ Error: ${err.message}`;
-      errorBox.style.display = 'block';
+        <div class="stat-card fade-in" style="animation-delay:.2s"><div class="val" style="font-size:0.9rem;color:var(--green)">${s.file_type}</div><div class="lbl">File Type</div></div>`;
+      document.getElementById('bestBanner').innerHTML=`<span>✦</span> Best model by F1-Score: <strong>${s.best_model}</strong>`;
+      document.getElementById('tableBody').innerHTML=data.results.map(r=>`
+        <tr><td>${r.Model}</td>
+        <td class="${scoreClass(r.Precision)}">${r.Precision}</td>
+        <td class="${scoreClass(r.Recall)}">${r.Recall}</td>
+        <td class="${scoreClass(r['F1-Score'])}">${r['F1-Score']}</td>
+        <td class="${scoreClass(r['ROC-AUC'])}">${r['ROC-AUC']}</td></tr>`).join('');
+      document.getElementById('predBody').innerHTML=data.predictions.map(p=>`
+        <tr><td>${p.transaction}</td>
+        <td class="${p.actual==='FRAUD'?'score-low':'score-high'}">${p.actual}</td>
+        <td class="${p.predicted==='FRAUD'?'score-low':'score-high'}">${p.predicted}</td>
+        <td class="${p.fraud_prob>70?'score-low':p.fraud_prob>40?'score-mid':'score-high'}">${p.fraud_prob}%</td>
+        <td>${p.correct?'✅ Correct':'❌ Wrong'}</td></tr>`).join('');
+      document.getElementById('chartClass').src=data.charts.class_dist;
+      document.getElementById('chartRoc').src=data.charts.roc;
+      document.getElementById('chartCm').src=data.charts.confusion_matrix;
+      document.getElementById('chartMetrics').src=data.charts.metrics_bar;
+      document.getElementById('chartFeat').src=data.charts.feature_importance;
+      resultsDiv.style.display='block';
+      resultsDiv.scrollIntoView({behavior:'smooth',block:'start'});
+    } catch(err) {
+      errorBox.textContent=`❌ Error: ${err.message}`;
+      errorBox.style.display='block';
     } finally {
-      loader.style.display = 'none';
-      analyzeBtn.disabled  = false;
+      loader.style.display='none';
+      analyzeBtn.disabled=false;
       stopSteps();
     }
   });
 
-  // ── SINGLE TRANSACTION TAB ────────────────────────────────
-  document.getElementById('singleBtn').addEventListener('click', async () => {
-    const singleLoader = document.getElementById('singleLoader');
-    const singleError  = document.getElementById('singleError');
-    const singleResult = document.getElementById('singleResult');
+  // ── SINGLE TAB — CSV upload ──
+  const singleCsvFile = document.getElementById('singleCsvFile');
+  const singleCsvBtn  = document.getElementById('singleCsvBtn');
+  const singleFilePill= document.getElementById('singleFilePill');
+  const singleFileName= document.getElementById('singleFileName');
 
-    singleLoader.style.display = 'block';
-    singleError.style.display  = 'none';
-    singleResult.style.display = 'none';
-
-    // Build transaction object
-    const transaction = {
-      Time:   parseFloat(document.getElementById('f_time').value)   || 0,
-      Amount: parseFloat(document.getElementById('f_amount').value) || 0,
-    };
-    for (let i = 1; i <= 28; i++) {
-      transaction[`V${i}`] = parseFloat(document.getElementById(`f_v${i}`).value) || 0;
-    }
-
-    try {
-      const res  = await fetch(`${BACKEND_URL}/predict`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transaction)
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-
-      const isFraud = data.predicted === 'FRAUD';
-      const prob    = data.fraud_probability;
-
-      const card = document.getElementById('resultCard');
-      card.className = `result-card ${isFraud ? 'fraud' : 'legit'}`;
-      document.getElementById('resultIcon').textContent  = isFraud ? '🚨' : '✅';
-      document.getElementById('resultTitle').textContent = isFraud ? 'FRAUD DETECTED' : 'LEGITIMATE';
-      document.getElementById('resultProb').textContent  = `Fraud Probability: ${prob}%`;
-      document.getElementById('probPct').textContent     = `${prob}%`;
-      document.getElementById('probFill').style.width   = `${prob}%`;
-
-      singleResult.style.display = 'block';
-
-    } catch (err) {
-      singleError.textContent   = `❌ Error: ${err.message}`;
-      singleError.style.display = 'block';
-    } finally {
-      singleLoader.style.display = 'none';
+  singleCsvFile.addEventListener('change',()=>{
+    if(singleCsvFile.files[0]){
+      singleFileName.textContent=singleCsvFile.files[0].name;
+      singleFilePill.classList.add('visible');
+      singleCsvBtn.disabled=false;
+      singleCsvFile._file=singleCsvFile.files[0];
     }
   });
+
+  singleCsvBtn.addEventListener('click',()=>runSinglePrediction('csv'));
+  document.getElementById('singleFormBtn').addEventListener('click',()=>runSinglePrediction('form'));
+
+  async function runSinglePrediction(method) {
+    const singleLoader=document.getElementById('singleLoader');
+    const singleError =document.getElementById('singleError');
+    const singleResult=document.getElementById('singleResult');
+
+    singleLoader.style.display='block';
+    singleError.style.display='none';
+    singleResult.style.display='none';
+
+    try {
+      let formData=new FormData();
+
+      if(method==='csv') {
+        const file=singleCsvFile._file||singleCsvFile.files[0];
+        if(!file) throw new Error('Please select a CSV file first');
+        formData.append('file', file);
+      } else {
+        // Build CSV from form fields
+        const headers=['Time','Amount',...Array.from({length:28},(_,i)=>`V${i+1}`)];
+        const values=[
+          document.getElementById('f_time').value||0,
+          document.getElementById('f_amount').value||0,
+          ...Array.from({length:28},(_,i)=>document.getElementById(`f_v${i+1}`).value||0)
+        ];
+        const csvContent=headers.join(',')+'\n'+values.join(',');
+        const blob=new Blob([csvContent],{type:'text/csv'});
+        formData.append('file', blob, 'transaction.csv');
+      }
+
+      const res=await fetch(`${BACKEND_URL}/predict`,{method:'POST',body:formData});
+      const data=await res.json();
+      if(data.error) throw new Error(data.error);
+
+      const isFraud=data.predicted==='FRAUD';
+      const prob=data.fraud_probability;
+
+      const card=document.getElementById('resultCard');
+      card.className=`result-card ${isFraud?'fraud':'legit'}`;
+      document.getElementById('resultIcon').textContent=isFraud?'🚨':'✅';
+      document.getElementById('resultTitle').textContent=isFraud?'FRAUD DETECTED':'LEGITIMATE';
+      document.getElementById('resultProb').textContent=`Fraud Probability: ${prob}%`;
+      document.getElementById('probPct').textContent=`${prob}%`;
+      document.getElementById('probFill').style.width=`${prob}%`;
+      singleResult.style.display='block';
+
+    } catch(err) {
+      singleError.textContent=`❌ Error: ${err.message}`;
+      singleError.style.display='block';
+    } finally {
+      singleLoader.style.display='none';
+    }
+  }
 </script>
 </body>
 </html>
