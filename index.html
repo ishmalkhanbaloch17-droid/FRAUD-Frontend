@@ -391,12 +391,12 @@
         <td class="${scoreClass(r.Recall)}">${r.Recall}</td>
         <td class="${scoreClass(r['F1-Score'])}">${r['F1-Score']}</td>
         <td class="${scoreClass(r['ROC-AUC'])}">${r['ROC-AUC']}</td></tr>`).join('');
-      document.getElementById('predBody').innerHTML=data.predictions.map(p=>`
+     document.getElementById('predBody').innerHTML=data.predictions.map(p=>`
         <tr><td>${p.transaction}</td>
-        <td class="${p.actual==='FRAUD'?'score-low':'score-high'}">${p.actual}</td>
+        <td class="${p.actual==='FRAUD'?'score-low':p.actual==='N/A'?'':'score-high'}">${p.actual}</td>
         <td class="${p.predicted==='FRAUD'?'score-low':'score-high'}">${p.predicted}</td>
         <td class="${p.fraud_prob>70?'score-low':p.fraud_prob>40?'score-mid':'score-high'}">${p.fraud_prob}%</td>
-        <td>${p.correct?'✅ Correct':'❌ Wrong'}</td></tr>`).join('');
+        <td>${p.correct===null?'—':p.correct?'✅ Correct':'❌ Wrong'}</td></tr>`).join('');
       document.getElementById('chartClass').src=data.charts.class_dist;
       document.getElementById('chartRoc').src=data.charts.roc;
       document.getElementById('chartCm').src=data.charts.confusion_matrix;
