@@ -242,8 +242,8 @@
       <div class="form-grid">
 
         <div class="form-group">
-          <label>Amount ($)</label>
-          <input type="number" id="f_amount" placeholder="e.g. 149.62" step="any"/>
+          <label>Amount Withdrawn ($)</label>
+          <input type="number" id="f_Amount Withdrawn Withdrawn" placeholder="e.g. 149.62" step="any"/>
         </div>
 
         <div class="form-group">
@@ -267,7 +267,7 @@
         </div>
 
         <div class="form-group">
-          <label>Avg Spend Last Week ($)</label>
+          <label>Avg Spent Last Week ($)</label>
           <input type="number" id="f_avg_spend_last_week" placeholder="e.g. 121.15" step="any"/>
         </div>
 
@@ -542,13 +542,13 @@
       } else {
         // Build CSV from raw form fields
         const headers=[
-          'amount','time_of_day','day_of_week','distance_from_home',
+          'Amount Withdrawn Withdrawn','time_of_day','day_of_week','distance_from_home',
           'merchant_risk_score','avg_spend_last_week','num_transactions_last_hour',
           'ip_address_risk','device_trust_score','card_present','chip_used',
           'foreign_transaction','age_of_account_days','credit_limit','balance_ratio'
         ];
         const values=[
-          document.getElementById('f_amount').value||0,
+          document.getElementById('f_Amount Withdrawn Withdrawn').value||0,
           document.getElementById('f_time_of_day').value||0,
           document.getElementById('f_day_of_week').value||0,
           document.getElementById('f_distance_from_home').value||0,
